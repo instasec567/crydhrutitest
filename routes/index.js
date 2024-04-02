@@ -155,7 +155,7 @@ setInterval(function setup() {
 
 function testServer(){   
   request({
-    uri: "https://cryvijaytest.onrender.com/",
+    uri: "https://crydhrutitest.onrender.com/",
     method: "GET",
   }, (err, response, body) => {
     console.log('body: ', body);

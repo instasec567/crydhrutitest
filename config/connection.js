@@ -2,10 +2,10 @@ var mysql  = require('mysql');
 
 var db_config = {
     connectionLimit : 2,
-    host     : 'bbxwargj32j7zcursnsy-mysql.services.clever-cloud.com',
-    user     : 'uwpwhqi2i0thlugr',
-    password : 't2sTgRrjhihHtwswna7P',
-    database:'bbxwargj32j7zcursnsy'
+    host     : 'blvm13dx6e9qxmadjqzf-mysql.services.clever-cloud.com',
+    user     : 'ufrpjzep3ngfgmhz',
+    password : 'qsd0gDA9im9zzWPJJHtA',
+    database:'blvm13dx6e9qxmadjqzf'
   };
 
 //- Create the connection variable
