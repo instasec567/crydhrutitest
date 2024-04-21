@@ -263,10 +263,17 @@ router.get('/buySellApi', async function (req, res) {
         // Fetch OHLCV (Open/High/Low/Close/Volume) data
         let order;
         if(req.query?.sl_price && (Number(req.query?.sl_price) != 0)){
+          let slPrice ;
+          if(req.query?.sl_price_percentage && (Number(req.query?.sl_price_percentage) != 0)){
+           let currentPrice = req.query?.accountType === 'spot' ? await bybitClient.fetchTicker(symbol) : await bybitClient1.fetchTicker(symbol);
+            slPrice = (side =='buy') ?  calculateBuyTPSL(currentPrice.last,req.query?.sl_price_percentage) :  calculateSellTPSL(currentPrice.last,req.query?.sl_price_percentage);
+          }else{
+            slPrice = req.query?.sl_price;
+          }
           let params = {
             'stopLoss': {
               'type': 'limit', // or 'market', this field is not necessary if limit price is specified
-              'triggerPrice': req.query?.sl_price,
+              'triggerPrice': slPrice,
             },
             marginMode: req.query?.margin_mode
             // marginMode: req.query?.margin_mode =='isolated' ? 'isolated' :'cross'
