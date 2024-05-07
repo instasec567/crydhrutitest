@@ -235,6 +235,55 @@ router.get('/historical-data', async function (req, res) {
   }
 });
 
+/** bybit closeAllTrades data */
+router.get('/closeAllTradesByInstrument', async function (req, res) {
+  try {
+    req.query?.accountType === 'spot' ? await bybitClient.load_time_difference() : await bybitClient1.load_time_difference();
+    let openOrdersData = req.query?.accountType === 'spot' ?  await bybitClient.fetchPosition(req.query?.instrument_token) : await bybitClient1.fetchPosition(req.query?.instrument_token);
+    let positionDirection = openOrdersData.info.side;
+    let openOrderQty = Number(req.query?.quantity);
+   if(positionDirection != ""){
+    const bybitBalance = await async.waterfall([
+      async function () {
+        let symbol = req.query?.instrument_token;
+        let type = req.query?.order_type; // or 'MARKET' or 'LIMIT'
+        let side = positionDirection.toLowerCase() == 'buy' ? 'sell' :'buy';
+        let price = Number(req.query?.price); 
+        let quantity = Number(openOrderQty); 
+
+        let order;
+          let params = {
+            marginMode: req.query?.margin_mode,
+            tpslMode:'partial'
+          };
+          order =  req.query?.accountType === 'spot' ? await bybitClient.createOrder(symbol, type, side, quantity, price, params) : await bybitClient1.createOrder(symbol, type, side, quantity, price, params);
+          return order;
+      },
+    ]);
+    await teleStockMsg("Bybit closeAllTrades api Apply successfully");
+    res.send({
+      status_api: 200,
+      message: 'Bybit closeAllTrades api Apply successfully',
+      data: bybitBalance,
+    });
+  }else{
+    await teleStockMsg("Bybit closeAllTrades api fire but no open order");
+    res.send({
+      status_api: 200,
+      message: 'Bybit api closeAllTrades api fire but no open order',
+      data: '',
+    });
+  }
+  } catch (err) {
+    await teleStockMsg("---> Bybit closeAllTrades api Apply failed");
+    res.send({
+      status_api: err.code ? err.code : 400,
+      message: (err && err.message) || 'Something went wrong',
+      data: err.data ? err.data : null,
+    });
+  }
+});
+
 /** bybit buy/sell data */
 router.get('/buySellApi', async function (req, res) {
   try {
