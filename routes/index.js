@@ -241,7 +241,7 @@ router.get('/closeAllTradesByInstrument', async function (req, res) {
     req.query?.accountType === 'spot' ? await bybitClient.load_time_difference() : await bybitClient1.load_time_difference();
     let openOrdersData = req.query?.accountType === 'spot' ?  await bybitClient.fetchPosition(req.query?.instrument_token) : await bybitClient1.fetchPosition(req.query?.instrument_token);
     let positionDirection = openOrdersData.info.side;
-    let openOrderQty = Number(req.query?.quantity);
+    let openOrderQty = Number(openOrdersData.info.size);
    if(positionDirection != ""){
     const bybitBalance = await async.waterfall([
       async function () {
