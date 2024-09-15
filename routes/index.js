@@ -939,14 +939,38 @@ async function getNextTrend(req, data, cursor) {
 router.get('/symbolData', async function (req, res) {
   try {
     await bybitClient1.load_time_difference();
-    // Get market symbols and quantities
+    
     const bybitBalance = await async.waterfall([
       async function () {
         const symbolsAndQuantities = await bybitClient1.loadMarkets();
         const convertedData = Object.values(symbolsAndQuantities);
-        return convertedData;
+
+        let currentKey = req.query?.Type;  // Adjust this as per your requirement
+        const filteredData = convertedData.filter(item => item.type === currentKey);
+
+        const cleanedData = filteredData.map(item => {
+          if (item.limits) {
+            switch (item.type) {
+              case 'spot':
+                if (item.limits.price) delete item.limits.price;
+                break;
+              case 'future':
+              case 'swap':
+                if (item.limits.cost) delete item.limits.cost;
+                break;
+              case 'option':
+                if (item.limits.leverage) delete item.limits.leverage;
+                if (item.limits.cost) delete item.limits.cost;
+                break;
+            }
+          }
+          return item;
+        });
+
+        return cleanedData;
       },
     ]);
+
     res.send({
       status_api: 200,
       message: 'Bybit token single open order position successfully',
